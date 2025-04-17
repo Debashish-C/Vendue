@@ -1,4 +1,4 @@
-import { query } from "../db/db";
+import { query } from "../db/db.js";
 
 export const getAllUsers = async (req, res) => {
   try {
