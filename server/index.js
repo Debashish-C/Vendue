@@ -3,10 +3,13 @@ import "dotenv/config";
 import cors from "cors";
 import UserRoute from "./routes/user.routes.js";
 import ProductRoute from "./routes/product.routes.js";
+import CatagoryRoute from "./routes/catagory.routes.js";
+import WishListRoute from "./routes/wishlist.routes.js";
+import BidsRoute from "./routes/bids.routes.js";
 import { query } from "./db/db.js";
 
 const app = express();
-
+app.use(express.json());
 app.use(cors());
 
 app.get("/test-db", async (req, res) => {
@@ -31,6 +34,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use("/user", UserRoute);
 app.use("/product", ProductRoute);
+app.use("/catagory", CatagoryRoute);
+app.use("/wishlist", WishListRoute);
+app.use("/bids", BidsRoute);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);

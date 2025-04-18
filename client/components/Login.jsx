@@ -6,7 +6,7 @@ export default function Login() {
     password: " ",
   });
 
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     setFormData(e.username.target);
     setFormData(e.password.target);
   };

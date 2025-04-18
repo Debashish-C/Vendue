@@ -11,43 +11,25 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { user_id, email, username, first_name, last_name } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and Password are required." });
+  try {
+    const existing = await query("SELECT * FROM users WHERE user_id = $1", [
+      user_id,
+    ]);
+    if (existing.rows.length > 0) {
+      return res.status(200).json({ message: "User already exists" });
     }
 
     const result = await query(
-      "INSERT INTO users (useremail, password) VALUES ($1, $2) RETURNING *",
-      [email, password]
+      `INSERT INTO users (user_id, email, username, first_name, last_name)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [user_id, email, username, first_name, last_name]
     );
 
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error("Failed to create user:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const result = await query(
-      "SELECT * FROM users WHERE useremail = $1 AND password = $2",
-      [email, password]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    res.status(200).json({ message: "Login successful", user: result.rows[0] });
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+  } catch (err) {
+    console.error("Error storing user:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

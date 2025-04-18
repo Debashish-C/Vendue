@@ -1,28 +1,42 @@
 import { query } from "../db/db.js";
 
-export const getAllProduct = async (req, res) => {
+export const getAuctionProduct = async (req, res) => {
   try {
-    const result = await query("SELECT * FROM product");
+    const result = await query(
+      "SELECT * FROM product WHERE bids_start_date_time <= NOW() AND bids_end_date_time > NOW()"
+    );
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error("Error fetching all products:", error);
+    console.error("Error fetching auction products:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getFutureProduct = async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT * FROM product WHERE bids_start_date_time > NOW()"
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching future products:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, base_price } = req.body;
+    const { name, base_price, bid_start_time, bid_end_time } = req.body;
 
-    if (!name || !base_price) {
-      return res
-        .status(400)
-        .json({ message: "Name and base price are required." });
+    if (!name || !base_price || !bid_start_time || !bid_end_time) {
+      return res.status(400).json({
+        message: "Name, base price, bid start time, and end time are required.",
+      });
     }
 
     const result = await query(
-      "INSERT INTO product (name, base_price) VALUES ($1, $2) RETURNING *",
-      [name, base_price]
+      "INSERT INTO product (name, base_price, bid_start_time, bid_end_time) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, base_price, bid_start_time, bid_end_time]
     );
 
     res.status(201).json(result.rows[0]);
@@ -33,22 +47,16 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProduct = async (req, res) => {
-  try {
-    const { productId } = req.params;
-
-    const result = await query("SELECT * FROM product WHERE product_id = $1", [
-      productId,
-    ]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json(result.rows[0]);
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+  const { id } = req.params;
+  const result = await query("SELECT * FROM product WHERE product_id = $1", [
+    id,
+  ]);
+  if (result.rows.length === 0) {
+    return res
+      .status(404)
+      .json({ message: "Product not found bro", id: id || "id not found" });
   }
+  res.json(result.rows[0]);
 };
 
 export const updateProduct = async (req, res) => {
@@ -85,9 +93,10 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found to delete" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Product deleted", product: result.rows[0] });
+    res.status(200).json({
+      message: "Product deleted",
+      product: result.rows[0],
+    });
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ message: "Internal Server Error" });
