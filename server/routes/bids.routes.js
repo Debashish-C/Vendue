@@ -7,11 +7,7 @@ import {
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  res.send("All bids route (optional)");
-});
-
-router.get("/product/:productId", getBidsForProduct);
+router.get("/products/:id", getBidsForProduct);
 router.get("/user/:userId/product/:productId", getUserBidsOnProduct);
 router.post("/", placeBid);
 

@@ -34,10 +34,11 @@ export default function ProductPage() {
             // productDesc={product.product_desc}
             // productImage={product.image_id}
             productPrice={product.product_base_price}
+            product_bids_start_date={product.bids_start_date_time}
           />
         </div>
         <div className="sm:w-1/2 w-4/5 flex justify-start items-start">
-          <Dashboard />
+          <Dashboard productId={product.product_id} />
         </div>
       </div>
     </div>

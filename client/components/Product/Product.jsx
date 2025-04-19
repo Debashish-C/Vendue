@@ -8,6 +8,7 @@ export default function Product({
   productImage,
   productDesc,
   productPrice,
+  product_bids_start_date,
 }) {
   const { user } = useUser();
   const [wishlist, setWishlist] = useState([]);
@@ -17,22 +18,26 @@ export default function Product({
   const [highestBidder, setHighestBidder] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const isBiddingOpen = new Date(product_bids_start_date) < new Date();
+
   useEffect(() => {
     if (!user?.id) return;
 
     const fetchData = async () => {
       try {
-        const [wishlistRes, bidRes] = await Promise.all([
-          axios.get(`http://localhost:3000/wishlist?user_id=${user.id}`),
-          axios.get(`http://localhost:3000/bids/product/${product_id}`),
-        ]);
+        const wishlistRes = await axios.get(
+          `http://localhost:3000/wishlist?user_id=${user.id}`
+        );
+        const bidRes = await axios.get(
+          `http://localhost:3000/bids/products/${product_id}`
+        );
 
         const productIds = wishlistRes.data.map((item) => item.product_id);
         setWishlist(productIds);
 
-        if (bidRes.data) {
-          setCurrentBid(bidRes.data.amount);
-          setHighestBidder(bidRes.data.highestBidder);
+        if (Array.isArray(bidRes.data) && bidRes.data.length > 0) {
+          setCurrentBid(bidRes.data[0].bid_amount);
+          setHighestBidder(bidRes.data[0].username || "Anonymous");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -63,18 +68,25 @@ export default function Product({
   const placeBid = async () => {
     if (!user?.id) return alert("Please log in");
 
-    if (!bidAmount || bidAmount <= currentBid) {
+    const numericBid = Number(bidAmount);
+    const effectiveCurrentBid = currentBid ?? 0;
+
+    if (!numericBid || numericBid <= effectiveCurrentBid) {
       return setErrorMessage("Your bid must be higher than the current bid.");
+    }
+
+    if (!isBiddingOpen) {
+      return setErrorMessage("Bidding hasn't started yet.");
     }
 
     try {
       await axios.post("http://localhost:3000/bids", {
         user_id: user.id,
         product_id,
-        bid_amount: bidAmount,
+        bid_amount: numericBid,
       });
-      setCurrentBid(bidAmount);
-      setHighestBidder(user.username);
+      setCurrentBid(numericBid);
+      setHighestBidder(user.username || "You");
       setBidAmount("");
       setErrorMessage("");
     } catch (error) {
@@ -86,9 +98,8 @@ export default function Product({
   const isWishlisted = wishlist.includes(product_id);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 border border-gray-300 rounded-lg shadow-md bg-white ">
+    <div className="max-w-4xl mx-auto p-6 border border-gray-300 rounded-lg shadow-md bg-white">
       <div className="flex flex-col sm:flex-row gap-8">
-        {/* Image */}
         <div className="w-full sm:w-1/2">
           <img
             src={productImage || "https://via.placeholder.com/400"}
@@ -97,7 +108,6 @@ export default function Product({
           />
         </div>
 
-        {/* Product Info */}
         <div className="w-full sm:w-1/2 space-y-4">
           <h1 className="text-3xl font-bold">{productName}</h1>
           <p className="text-red-600 text-xl font-semibold">₹{productPrice}</p>
@@ -105,19 +115,17 @@ export default function Product({
             {productDesc || "No description available."}
           </p>
 
-          {/* Bid Info */}
           <div className="pt-2">
             <p className="font-medium">
               <span className="text-gray-700">Current Bid:</span> ₹
-              {currentBid || "No bids yet"}
+              {currentBid ?? "No bids yet"}
             </p>
             <p className="font-medium">
               <span className="text-gray-700">Highest Bidder:</span>{" "}
-              {highestBidder || "No bidder yet"}
+              {highestBidder ?? "No bidder yet"}
             </p>
           </div>
 
-          {/* Bid Input */}
           <div className="space-y-2">
             <input
               type="number"
@@ -129,18 +137,28 @@ export default function Product({
             {errorMessage && (
               <p className="text-sm text-red-500">{errorMessage}</p>
             )}
+            {!isBiddingOpen && (
+              <p className="text-sm text-yellow-600">
+                Bidding hasn't started yet.
+              </p>
+            )}
             <button
               onClick={placeBid}
-              disabled={isLoading || bidAmount <= currentBid}
+              disabled={
+                isLoading ||
+                !isBiddingOpen ||
+                Number(bidAmount) <= (currentBid ?? 0)
+              }
               className={`w-full py-2 rounded text-white font-semibold transition ${
-                bidAmount <= currentBid
+                !isBiddingOpen || Number(bidAmount) <= (currentBid ?? 0)
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-green-500 hover:bg-green-600"
               }`}
             >
-              Place Bid
+              {isLoading ? "Placing..." : "Place Bid"}
             </button>
           </div>
+
           <div className="pt-4">
             <button
               onClick={AddtoWishList}

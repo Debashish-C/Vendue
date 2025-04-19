@@ -73,11 +73,11 @@ export default function AddProductForm({ onClose, onProductAdded }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div
-        className="fixed inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-gray-000 bg-opacity-30 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       ></div>
       <div className="flex min-h-full items-center justify-center p-4 text-center">
-        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg text-left">
+        <div className="relative bg-white p-4 border-1 border-black rounded-lg shadow-xl w-full max-w-lg text-left">
           <div className="flex items-center justify-between p-4 border-b">
             <h3 className="text-lg font-medium">Add Product</h3>
             <button

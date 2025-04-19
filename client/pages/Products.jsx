@@ -65,7 +65,6 @@ export default function Products() {
     <div className="pt-24 px-4 min-h-screen bg-gray-50">
       <Toaster position="top-right" />
       <div className="max-w-screen-xl mx-auto flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
         <div className="w-full lg:w-1/4 space-y-6">
           <div className="bg-white p-6 border-[0.6px] rounded-lg shadow-sm">
             <h2 className="text-xl font-bold mb-4">Sell Product</h2>
@@ -97,8 +96,6 @@ export default function Products() {
             </div>
           </div>
         </div>
-
-        {/* Product Grid */}
         <div className="w-full lg:w-3/4">
           {products.length === 0 ? (
             <p className="text-gray-500 text-xl mt-4 text-center">

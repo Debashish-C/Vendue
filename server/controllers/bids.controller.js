@@ -15,11 +15,11 @@ export const placeBid = async (req, res) => {
 };
 
 export const getBidsForProduct = async (req, res) => {
-  const { product_id } = req.params;
+  const { id } = req.params;
   try {
     const result = await query(
-      `SELECT * FROM bids WHERE product_id = $1 ORDER BY bid_time DESC`,
-      [product_id]
+      `SELECT * FROM bids WHERE product_id = $1 ORDER BY bid_amount DESC`,
+      [id]
     );
     res.json(result.rows);
   } catch (err) {

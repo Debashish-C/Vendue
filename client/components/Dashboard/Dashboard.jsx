@@ -11,9 +11,10 @@ export default function Dashboard({ productId }) {
     async function fetchUserBids() {
       try {
         const res = await axios.get(
-          `http://localhost:3000/bids/user/${user.id}/product/${productId}`
+          `http://localhost:3000/bids/products/${productId}`
         );
         setUserBids(res.data);
+        // console.log(res.data);
       } catch (error) {
         console.error("Error fetching user bids:", error);
         setUserBids([]);
@@ -30,7 +31,7 @@ export default function Dashboard({ productId }) {
   return (
     <div className="p-4 border-[0.6px] shadow-md border-gray-400 rounded-lg w-full text-center">
       <h1 className="border-b-[0.6px] border-black pb-3 text-lg font-semibold">
-        Your Bid History
+        Product Bid History
       </h1>
 
       {loading ? (
@@ -53,6 +54,13 @@ export default function Dashboard({ productId }) {
                 <p className="text-xs text-gray-600">
                   Placed on: {new Date(bid.bid_time).toLocaleString()}
                 </p>
+              </div>
+              <div className="">
+                <img
+                  src={user.imageUrl}
+                  alt=""
+                  className="w-10 h-10 rounded-full"
+                />
               </div>
             </div>
           ))}
