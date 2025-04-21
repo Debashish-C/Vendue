@@ -10,11 +10,14 @@ export default function Auction() {
   useEffect(() => {
     async function fetchCatagory() {
       try {
-        const response = await axios.get("http://localhost:3000/catagory", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${import.meta.env.API_URL}/catagory`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         console.log(response.data);
         setCatagory(response.data);
       } catch (error) {
@@ -28,7 +31,7 @@ export default function Auction() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await axios.get("http://localhost:3000/product", {
+        const response = await axios.get(`${import.meta.env.API_URL}/product`, {
           headers: {
             "Content-Type": "application/json",
           },

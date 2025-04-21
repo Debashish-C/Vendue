@@ -10,7 +10,12 @@ import { query } from "./db/db.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://vendue.vercel.app",
+    methods: ["GET", "POST"],
+  })
+);
 
 app.get("/test-db", async (req, res) => {
   try {

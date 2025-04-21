@@ -17,7 +17,7 @@ export default function Products() {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/product/future-product"
+        `${import.meta.env.API_URL}/product/future-product`
       );
       setAllProducts(response.data);
       setProducts(response.data);
@@ -33,7 +33,7 @@ export default function Products() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await axios.get("http://localhost:3000/catagory");
+        const res = await axios.get(`${import.meta.env.API_URL}/catagory`);
         setCategories(res.data);
       } catch (error) {
         console.error("Error fetching categories:", error);

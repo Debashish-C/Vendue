@@ -14,7 +14,7 @@ export default function WishList() {
     async function FetchWishList() {
       try {
         const result = await axios.get(
-          `http://localhost:3000/wishlist?user_id=${user.id}`
+          `${import.meta.env.API_URL}/wishlist?user_id=${user.id}`
         );
         setWishList(result.data);
       } catch (error) {
