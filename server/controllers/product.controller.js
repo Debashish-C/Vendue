@@ -26,17 +26,40 @@ export const getFutureProduct = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, base_price, bid_start_time, bid_end_time } = req.body;
+    const {
+      product_name,
+      product_base_price,
+      catagory_id,
+      description,
+      bids_start_date_time,
+      bids_end_date_time,
+      created_by,
+    } = req.body;
 
-    if (!name || !base_price || !bid_start_time || !bid_end_time) {
+    if (
+      !product_name ||
+      !product_base_price ||
+      !catagory_id ||
+      !bids_start_date_time ||
+      !bids_end_date_time
+    ) {
       return res.status(400).json({
-        message: "Name, base price, bid start time, and end time are required.",
+        message:
+          "Product name, base price, category, bid start time, and bid end time are required.",
       });
     }
 
     const result = await query(
-      "INSERT INTO product (name, base_price, bid_start_time, bid_end_time) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, base_price, bid_start_time, bid_end_time]
+      "INSERT INTO product (product_name, product_base_price, catagory_id, description, bids_start_date_time, bids_end_date_time, created_by ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [
+        product_name,
+        product_base_price,
+        catagory_id,
+        description,
+        bids_start_date_time,
+        bids_end_date_time,
+        created_by || null,
+      ]
     );
 
     res.status(201).json(result.rows[0]);

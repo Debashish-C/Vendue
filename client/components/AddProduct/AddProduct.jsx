@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useUser } from "@clerk/clerk-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
 export default function AddProductForm({ onClose, onProductAdded }) {
@@ -42,7 +42,9 @@ export default function AddProductForm({ onClose, onProductAdded }) {
     if (
       !product.product_name ||
       !product.product_base_price ||
-      !product.catagory_id
+      !product.catagory_id ||
+      !product.bids_start_date_time ||
+      !product.bids_end_date_time
     ) {
       return toast.error("Please fill out all required fields");
     }
@@ -56,8 +58,9 @@ export default function AddProductForm({ onClose, onProductAdded }) {
 
     try {
       setIsLoading(true);
-      await axios.post("http://localhost:3000/product/add", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await axios.post("http://localhost:3000/product", {
+        ...product,
+        created_by: user.id,
       });
       toast.success("Product added successfully!");
       onProductAdded();

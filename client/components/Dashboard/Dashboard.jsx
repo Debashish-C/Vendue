@@ -37,9 +37,7 @@ export default function Dashboard({ productId }) {
       {loading ? (
         <p className="text-gray-500">Loading...</p>
       ) : userBids.length === 0 ? (
-        <p className="text-gray-500 pt-4">
-          You haven’t placed any bids on this product yet.
-        </p>
+        <p className="text-gray-500 pt-4">No bid placed on this product yet.</p>
       ) : (
         <div className="pt-4 space-y-3">
           {userBids.map((bid, index) => (

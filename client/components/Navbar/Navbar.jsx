@@ -44,12 +44,10 @@ export default function Navbar() {
   return (
     <nav className="w-full fixed top-0 left-0 z-50 bg-white border-b border-gray-300 shadow-sm">
       <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="text-2xl font-bold text-gray-800">
           Vendue
         </Link>
 
-        {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
           <NavLink
             to="/auction"
@@ -70,7 +68,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right Icons */}
         <div className="hidden md:flex items-center gap-4">
           <Link to="/wishlist" className="hover:text-amber-600">
             <span className="material-symbols-outlined">favorite</span>
@@ -92,7 +89,6 @@ export default function Navbar() {
           </SignedIn>
         </div>
 
-        {/* Hamburger */}
         <button onClick={toggleMenu} className="md:hidden">
           <span className="material-symbols-outlined text-3xl">
             {menuOpen ? "close" : "menu"}
@@ -100,9 +96,8 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md border-t border-gray-200 px-4 pb-4 pt-2 space-y-4">
+        <div className="md:hidden bg-white shadow-md border-t border-gray-200 px-4 pb-4  pt-2 space-y-4">
           <NavLink
             to="/auction"
             onClick={closeMenu}

@@ -26,7 +26,7 @@ export default function WishList() {
   }, [user?.id]);
 
   return (
-    <div className="pt-20 flex flex-wrap justify-center gap-6 px-8">
+    <div className="pt-20 flex flex-wrap justify-center gap-6 sm:px-8">
       {wishList.length > 0 ? (
         wishList.map((product) => (
           <Link to={`/products/${product.product_id}`} key={product.product_id}>
