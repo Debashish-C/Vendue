@@ -11,7 +11,7 @@ export default function Dashboard({ productId }) {
     async function fetchUserBids() {
       try {
         const res = await axios.get(
-          `${import.meta.env.API_URL}/bids/products/${productId}`
+          `${import.meta.env.VITE_API_URL}/bids/products/${productId}`
         );
         setUserBids(res.data);
         // console.log(res.data);

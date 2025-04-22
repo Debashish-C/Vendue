@@ -14,11 +14,16 @@ export default function Products() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.API_URL}/product/future-product`
+        `${import.meta.env.VITE_API_URL}/product/future-product`
       );
+      // console.log("Fetched products:", response.data);
       setAllProducts(response.data);
       setProducts(response.data);
     } catch (error) {
@@ -33,7 +38,12 @@ export default function Products() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await axios.get(`${import.meta.env.API_URL}/catagory`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/catagory`);
+        // console.log("value is ", import.meta.env.VITE_API_URL);
+
+        // console.log("Type of res.data:", typeof res.data);
+        // console.log("Is array?", Array.isArray(res.data));
+        // console.log("res.data:", res.data);
         setCategories(res.data);
       } catch (error) {
         console.error("Error fetching categories:", error);

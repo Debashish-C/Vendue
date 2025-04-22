@@ -18,7 +18,7 @@ export default function AddProductForm({ onClose, onProductAdded }) {
   });
 
   useEffect(() => {
-    axios.get(`${import.meta.env.API_URL}/catagory`).then((res) => {
+    axios.get(`${import.meta.env.VITE_API_URL}/catagory`).then((res) => {
       setCategories(res.data);
     });
   }, []);
@@ -58,7 +58,7 @@ export default function AddProductForm({ onClose, onProductAdded }) {
 
     try {
       setIsLoading(true);
-      await axios.post(`${import.meta.env.API_URL}/product`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/product`, {
         ...product,
         created_by: user.id,
       });

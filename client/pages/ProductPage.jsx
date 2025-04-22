@@ -10,7 +10,9 @@ export default function ProductPage() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const res = await axios.get(`${import.meta.env.API_URL}/product/${id}`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/product/${id}`
+        );
         setProduct(res.data);
       } catch (err) {
         console.error("Error fetching product", err);

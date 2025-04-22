@@ -26,10 +26,10 @@ export default function Product({
     const fetchData = async () => {
       try {
         const wishlistRes = await axios.get(
-          `${import.meta.env.API_URL}/wishlist?user_id=${user.id}`
+          `${import.meta.env.VITE_API_URL}/wishlist?user_id=${user.id}`
         );
         const bidRes = await axios.get(
-          `${import.meta.env.API_URL}/bids/products/${product_id}`
+          `${import.meta.env.VITE_API_URL}/bids/products/${product_id}`
         );
 
         const productIds = wishlistRes.data.map((item) => item.product_id);
@@ -53,7 +53,7 @@ export default function Product({
 
     try {
       setIsLoading(true);
-      await axios.post(`${import.meta.env.API_URL}/wishlist/add`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/wishlist/add`, {
         user_id: user.id,
         product_id,
       });
@@ -80,7 +80,7 @@ export default function Product({
     }
 
     try {
-      await axios.post(`${import.meta.env.API_URL}/bids`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/bids`, {
         user_id: user.id,
         product_id,
         bid_amount: numericBid,

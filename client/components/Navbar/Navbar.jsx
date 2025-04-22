@@ -24,7 +24,7 @@ export default function Navbar() {
             first_name: user.firstName,
             last_name: user.lastName,
           };
-          await axios.post(`${import.meta.env.API_URL}/user`, userData);
+          await axios.post(`${import.meta.env.VITE_API_URL}/user`, userData);
         } catch (error) {
           console.log("Error saving user:", error);
         }
