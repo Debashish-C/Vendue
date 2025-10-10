@@ -20,6 +20,9 @@ export default function Product({
 
   const isBiddingOpen = new Date(product_bids_start_date) < new Date();
 
+  const placeholderImage =
+    "https://via.placeholder.com/400x300?text=No+Image+Available";
+
   useEffect(() => {
     if (!user?.id) return;
 
@@ -32,8 +35,7 @@ export default function Product({
           `${import.meta.env.VITE_API_URL}/bids/products/${product_id}`
         );
 
-        const productIds = wishlistRes.data.map((item) => item.product_id);
-        setWishlist(productIds);
+        setWishlist(wishlistRes.data.map((item) => item.product_id));
 
         if (Array.isArray(bidRes.data) && bidRes.data.length > 0) {
           setCurrentBid(bidRes.data[0].bid_amount);
@@ -48,7 +50,7 @@ export default function Product({
     fetchData();
   }, [user?.id, product_id]);
 
-  const AddtoWishList = async () => {
+  const addToWishlist = async () => {
     if (!user?.id) return alert("Please log in");
 
     try {
@@ -98,41 +100,57 @@ export default function Product({
   const isWishlisted = wishlist.includes(product_id);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 border border-gray-300 rounded-lg shadow-md bg-white">
-      <div className="flex flex-col sm:flex-row gap-8">
-        <div className="w-full sm:w-1/2">
+    <div className=" mx-auto p-6 bg-white w-full border-gray-50 border  rounded-md ">
+      <div className="flex justify-center items-center w-full flex-col gap-2">
+        {/* Product Image */}
+        <div className="w-full  flex justify-center items-center">
           <img
-            src={productImage || "https://via.placeholder.com/400"}
+            src={
+              productImage && productImage.trim() !== ""
+                ? productImage
+                : placeholderImage
+            }
             alt={productName}
-            className="w-full h-64 object-cover rounded-lg"
+            className="w-full h-64 sm:h-80 object-cover rounded-xl shadow-sm"
           />
         </div>
 
-        <div className="w-full sm:w-1/2 space-y-4">
-          <h1 className="text-3xl font-bold">{productName}</h1>
-          <p className="text-red-600 text-xl font-semibold">₹{productPrice}</p>
-          <p className="text-gray-600">
-            {productDesc || "No description available."}
-          </p>
-
-          <div className="pt-2">
-            <p className="font-medium">
-              <span className="text-gray-700">Current Bid:</span> ₹
-              {currentBid ?? "No bids yet"}
+        {/* Product Details */}
+        <div className="w-full  flex flex-col justify-between space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{productName}</h1>
+            <p className="text-red-600 text-2xl font-semibold mt-2">
+              ₹{productPrice}
             </p>
-            <p className="font-medium">
-              <span className="text-gray-700">Highest Bidder:</span>{" "}
-              {highestBidder ?? "No bidder yet"}
+            <p className="text-gray-600 mt-2">
+              {productDesc || "No description available."}
             </p>
           </div>
 
+          {/* Current Bid Info */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-inner space-y-2">
+            <p className="text-gray-700 font-medium">
+              Current Bid:{" "}
+              <span className="font-semibold text-red-500">
+                ₹{currentBid ?? "No bids yet"}
+              </span>
+            </p>
+            <p className="text-gray-700 font-medium">
+              Highest Bidder:{" "}
+              <span className="font-semibold">
+                {highestBidder ?? "No bidder yet"}
+              </span>
+            </p>
+          </div>
+
+          {/* Place Bid */}
           <div className="space-y-2">
             <input
               type="number"
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
               placeholder="Enter your bid amount"
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             {errorMessage && (
               <p className="text-sm text-red-500">{errorMessage}</p>
@@ -149,21 +167,22 @@ export default function Product({
                 !isBiddingOpen ||
                 Number(bidAmount) <= (currentBid ?? 0)
               }
-              className={`w-full py-2 rounded text-white font-semibold transition ${
+              className={`w-full py-3 rounded-lg text-white font-semibold transition ${
                 !isBiddingOpen || Number(bidAmount) <= (currentBid ?? 0)
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-500 hover:bg-green-600"
+                  : "bg-green-600 hover:bg-green-700"
               }`}
             >
               {isLoading ? "Placing..." : "Place Bid"}
             </button>
           </div>
 
-          <div className="pt-4">
+          {/* Wishlist */}
+          <div>
             <button
-              onClick={AddtoWishList}
+              onClick={addToWishlist}
               disabled={isWishlisted || isLoading}
-              className={`w-full flex items-center justify-center gap-2 py-2 border rounded transition ${
+              className={`w-full flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg transition ${
                 isWishlisted
                   ? "bg-red-100 text-red-600 cursor-not-allowed"
                   : "hover:bg-gray-100"

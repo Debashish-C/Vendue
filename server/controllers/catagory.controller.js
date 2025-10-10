@@ -1,11 +1,15 @@
-import { query } from "../db/db.js";
+import { PrismaClient } from "@prisma/client";
 
-export const getAllCatagory = async (req, res) => {
+const prisma = new PrismaClient();
+
+export const getAllCategories = async (req, res) => {
   try {
-    const result = await query("SELECT * FROM catagory");
-    res.status(200).json(result.rows);
+    const categories = await prisma.category.findMany({
+      orderBy: { id: "asc" }, // optional: order by id
+    });
+    res.status(200).json(categories);
   } catch (error) {
-    console.error("Error fetching auction catagory", error);
+    console.error("Error fetching auction categories:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

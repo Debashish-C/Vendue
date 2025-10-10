@@ -1,5 +1,8 @@
-import { query } from "../db/db.js";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
+
+// Get wishlist for a user
 export const getWishList = async (req, res) => {
   const { user_id } = req.query;
 
@@ -8,23 +11,28 @@ export const getWishList = async (req, res) => {
   }
 
   try {
-    const result = await query(
-      `
-      SELECT p.* 
-      FROM wish_list w
-      JOIN product p ON w.product_id = p.product_id
-      WHERE w.user_id = $1
-      `,
-      [user_id]
-    );
-    res.status(200).json(result.rows);
+    const wishlist = await prisma.user.findUnique({
+      where: { id: parseInt(user_id) },
+      select: {
+        interests: {
+          select: {
+            id: true,
+            name: true,
+            products: true, // optional, include product info if needed
+          },
+        },
+      },
+    });
+
+    res.status(200).json(wishlist?.interests || []);
   } catch (error) {
-    console.log("Internal Error", error);
-    res.status(500).json({ message: "Error in wishlist server" });
+    console.error("Internal Error", error);
+    res.status(500).json({ message: "Error fetching wishlist" });
   }
 };
 
-export const addTowishlist = async (req, res) => {
+// Add product to wishlist
+export const addToWishlist = async (req, res) => {
   const { user_id, product_id } = req.body;
 
   if (!user_id || !product_id) {
@@ -32,18 +40,24 @@ export const addTowishlist = async (req, res) => {
   }
 
   try {
-    const response = await query(
-      "INSERT INTO wish_list (user_id, product_id) VALUES ($1, $2)",
-      [user_id, product_id]
-    );
-    console.log(response);
+    // Connect user and product in UserInterests relation
+    await prisma.user.update({
+      where: { id: parseInt(user_id) },
+      data: {
+        interests: {
+          connect: { id: parseInt(product_id) }, // Assuming product id matches category/product relation
+        },
+      },
+    });
+
     res.status(201).json({ message: "Product added to wishlist!" });
   } catch (error) {
-    console.log("Error adding to wishlist", error);
+    console.error("Error adding to wishlist", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Remove product from wishlist
 export const removeFromWishlist = async (req, res) => {
   const { user_id, product_id } = req.body;
 
@@ -52,10 +66,15 @@ export const removeFromWishlist = async (req, res) => {
   }
 
   try {
-    await query(
-      "DELETE FROM wish_list WHERE user_id = $1 AND product_id = $2",
-      [user_id, product_id]
-    );
+    await prisma.user.update({
+      where: { id: parseInt(user_id) },
+      data: {
+        interests: {
+          disconnect: { id: parseInt(product_id) },
+        },
+      },
+    });
+
     res.status(200).json({ message: "Removed from wishlist." });
   } catch (error) {
     console.error("Error removing from wishlist", error);

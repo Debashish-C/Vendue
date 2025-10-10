@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   SignedIn,
   SignedOut,
@@ -8,11 +8,16 @@ import {
 } from "@clerk/clerk-react";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-react";
+import { Heart, ShoppingCart, Menu, X, Search } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [role, setRole] = useState("BUYER"); // default role
 
+  // Store user in backend when logged in
   useEffect(() => {
     if (user) {
       const storeUser = async () => {
@@ -33,52 +38,74 @@ export default function Navbar() {
     }
   }, [user]);
 
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const closeMenu = () => setMenuOpen(false);
 
-  const closeMenu = () => {
-    setMenuOpen(false);
+  // Switch between Buyer and Seller mode
+  const switchRole = () => {
+    if (role === "BUYER") {
+      setRole("SELLER");
+      navigate("/seller");
+    } else {
+      setRole("BUYER");
+      navigate("/");
+    }
   };
 
   return (
-    <nav className="w-full fixed top-0 left-0 z-50 bg-white border-b border-gray-300 shadow-sm">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-white via-gray-50 to-white border-b border-gray-200 shadow-sm backdrop-blur-md">
       <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-gray-800">
-          Vendue
+        {/* Logo */}
+        <Link
+          to="/"
+          className="text-2xl font-extrabold tracking-tight text-gray-800 hover:text-blue-600 transition"
+        >
+          Vendue<span className="text-blue-600">.</span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
-          <NavLink
-            to="/auction"
-            className="text-gray-700 hover:text-amber-600 text-lg font-medium"
-          >
-            Live<span className="text-green-600 text-2xl ml-1">•</span>
-          </NavLink>
-
-          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="p-2 outline-none w-64 md:w-80"
-            />
-            <button className="p-2 hover:text-amber-600">
-              <span className="material-symbols-outlined">search</span>
-            </button>
-          </div>
+        {/* Search bar (Desktop) */}
+        <div className="hidden md:flex items-center relative w-[420px]">
+          <input
+            type="text"
+            placeholder="Search for products, categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50"
+          />
+          <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
-          <Link to="/wishlist" className="hover:text-amber-600">
-            <span className="material-symbols-outlined">favorite</span>
-          </Link>
-          <Link to="/cart" className="hover:text-amber-600">
-            <span className="material-symbols-outlined">shopping_cart</span>
+        {/* Desktop Icons */}
+        <div className="hidden md:flex items-center gap-5">
+          {/* Wishlist & Cart */}
+          <Link
+            to="/wishlist"
+            className="relative p-2 rounded-full hover:bg-blue-50 transition"
+          >
+            <Heart className="w-5 h-5 text-gray-700 hover:text-blue-600" />
           </Link>
 
+          <Link
+            to="/cart"
+            className="relative p-2 rounded-full hover:bg-blue-50 transition"
+          >
+            <ShoppingCart className="w-5 h-5 text-gray-700 hover:text-blue-600" />
+          </Link>
+
+          {/* Role Switch Button (only logged in) */}
+          <SignedIn>
+            <button
+              onClick={switchRole}
+              className="px-3 py-1 border border-gray-400 rounded-full hover:bg-gray-100 text-sm font-medium transition"
+            >
+              {role === "BUYER" ? "Switch to Seller" : "Switch to Buyer"}
+            </button>
+          </SignedIn>
+
+          {/* Auth buttons */}
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-100 text-sm">
+              <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 transition text-sm font-medium">
                 Sign In
               </button>
             </SignInButton>
@@ -89,55 +116,67 @@ export default function Navbar() {
           </SignedIn>
         </div>
 
-        <button onClick={toggleMenu} className="md:hidden">
-          <span className="material-symbols-outlined text-3xl">
-            {menuOpen ? "close" : "menu"}
-          </span>
+        {/* Mobile Menu Button */}
+        <button
+          onClick={toggleMenu}
+          className="md:hidden p-2 rounded-md hover:bg-gray-100 transition"
+        >
+          {menuOpen ? (
+            <X className="w-6 h-6 text-gray-700" />
+          ) : (
+            <Menu className="w-6 h-6 text-gray-700" />
+          )}
         </button>
       </div>
 
+      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md border-t border-gray-200 px-4 pb-4  pt-2 space-y-4">
-          <NavLink
-            to="/auction"
-            onClick={closeMenu}
-            className="block text-gray-700 hover:text-amber-600 font-medium"
-          >
-            Live<span className="text-green-600 text-lg ml-1">•</span>
-          </NavLink>
-
-          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="p-2 outline-none w-full"
-            />
-            <button className="p-2 hover:text-amber-600">
-              <span className="material-symbols-outlined">search</span>
-            </button>
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-md py-4 px-4 animate-slideDown">
+          {/* Search (Mobile) */}
+          <div className="flex items-center mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="w-full pl-10 pr-4 py-2 border rounded-full focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50"
+              />
+            </div>
           </div>
 
-          <div className="flex gap-4 items-center">
+          {/* Wishlist & Cart */}
+          <div className="flex gap-4 items-center mb-4">
             <Link
               to="/wishlist"
               onClick={closeMenu}
-              className="hover:text-amber-600"
+              className="p-2 rounded-full hover:bg-blue-50 transition"
             >
-              <span className="material-symbols-outlined">favorite</span>
+              <Heart className="w-5 h-5 text-gray-700" />
             </Link>
             <Link
               to="/cart"
               onClick={closeMenu}
-              className="hover:text-amber-600"
+              className="p-2 rounded-full hover:bg-blue-50 transition"
             >
-              <span className="material-symbols-outlined">shopping_cart</span>
+              <ShoppingCart className="w-5 h-5 text-gray-700" />
             </Link>
           </div>
 
-          <div>
+          {/* Role Switch (only logged in) */}
+          <SignedIn>
+            <button
+              onClick={switchRole}
+              className="w-full mb-3 px-3 py-2 border border-gray-400 rounded-full hover:bg-gray-100 text-sm font-medium transition"
+            >
+              {role === "BUYER" ? "Switch to Seller" : "Switch to Buyer"}
+            </button>
+          </SignedIn>
+
+          {/* Auth */}
+          <div className="border-t pt-3">
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-100 text-sm w-full">
+                <button className="w-full px-4 py-2 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 transition text-sm font-medium">
                   Sign In
                 </button>
               </SignInButton>

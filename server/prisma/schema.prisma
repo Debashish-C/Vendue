@@ -1,0 +1,118 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String     @id
+  name             String
+  email            String     @unique
+  password         String
+  phoneNo          String?    @map("phone_no")
+  emailVerified    Boolean    @default(false)
+  phoneVerified    Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  role             Role       @default(BUYER)
+  products         Product[]  @relation("UserProducts")
+  bids             Bid[]      @relation("UserBids")
+  messagesSent     Message[]  @relation("MessagesSent")
+  messagesReceived Message[]  @relation("MessagesReceived")
+  winnings         Winning[]
+  interests        Category[] @relation("UserInterests")
+}
+
+enum Role {
+  ADMIN
+  SELLER
+  BUYER
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[] @relation("CategoryProducts")
+  users    User[]    @relation("UserInterests")
+}
+
+model Product {
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String?
+  basePrice        Float
+  auctionStartTime DateTime
+  auctionEndTime   DateTime
+  createdAt        DateTime       @default(now())
+  status           ProductStatus  @default(ACTIVE)
+  location         String?
+  seller           User           @relation("UserProducts", fields: [sellerId], references: [id])
+  sellerId         String
+  category         Category?      @relation("CategoryProducts", fields: [categoryId], references: [id])
+  categoryId       Int?
+  images           ProductImage[]
+  bids             Bid[]
+  unsold           Unsold?
+  Winning          Winning[]
+  Message          Message[]
+}
+
+enum ProductStatus {
+  ACTIVE
+  SOLD
+  UNSOLD
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Bid {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  createdAt DateTime @default(now())
+  bidder    User     @relation("UserBids", fields: [bidderId], references: [id])
+  bidderId  String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Winning {
+  id              Int      @id @default(autoincrement())
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       Int
+  winner          User     @relation(fields: [winnerId], references: [id])
+  winnerId        String
+  productReceived Boolean  @default(false)
+  paymentReceived Boolean  @default(false)
+  buyerFeedback   String?
+  sellerFeedback  String?
+  createdAt       DateTime @default(now())
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  timestamp  DateTime @default(now())
+  sender     User     @relation("MessagesSent", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("MessagesReceived", fields: [receiverId], references: [id])
+  receiverId String
+  product    Product? @relation(fields: [productId], references: [id])
+  productId  Int?
+}
+
+model Unsold {
+  id               Int      @id @default(autoincrement())
+  product          Product  @relation(fields: [productId], references: [id])
+  productId        Int      @unique
+  reason           String?
+  auctionStartTime DateTime
+  auctionEndTime   DateTime
+  basePrice        Float
+}
