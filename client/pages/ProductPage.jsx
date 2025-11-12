@@ -277,6 +277,7 @@ export default function ProductPage() {
 
           <Product
             product_id={product.id}
+            productImage={product.image}
             productName={product.name}
             productDesc={product.description}
             productPrice={product.basePrice}

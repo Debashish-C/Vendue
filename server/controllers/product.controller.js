@@ -71,6 +71,7 @@ export const createProduct = async (req, res) => {
       auctionEndTime,
       sellerId,
       location,
+      image
     } = req.body;
 
     if (
@@ -96,6 +97,7 @@ export const createProduct = async (req, res) => {
         sellerId: sellerId || null,
         categoryId,
         location,
+        image
       },
     });
 

@@ -4,6 +4,7 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
+  useClerk,
   UserButton,
 } from "@clerk/clerk-react";
 import axios from "axios";
@@ -11,6 +12,7 @@ import { useUser } from "@clerk/clerk-react";
 import { Heart, ShoppingCart, Menu, X, Search } from "lucide-react";
 
 export default function Navbar() {
+  const { signOut } = useClerk();
   const { user } = useUser();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,25 +20,39 @@ export default function Navbar() {
   const [role, setRole] = useState("BUYER"); // default role
 
   // Store user in backend when logged in
-  useEffect(() => {
+useEffect(() => {
     if (user) {
       const storeUser = async () => {
         try {
+          const email = user.primaryEmailAddress?.emailAddress;
+          if (!email?.endsWith("stu.manit.ac.in")) {
+            alert("Please use your official college email ID (stu.manit.ac.in)");
+            
+            await signOut();
+            return;
+          }
+
           const userData = {
             user_id: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
+            email,
             username: user.username,
             first_name: user.firstName,
             last_name: user.lastName,
           };
+
           await axios.post(`${import.meta.env.VITE_API_URL}/user`, userData);
         } catch (error) {
-          console.log("Error saving user:", error);
+          console.error("Error saving user:", error);
         }
       };
+
       storeUser();
     }
-  }, [user]);
+  }, [user, signOut]);
+
+
+
+  
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
@@ -189,4 +205,5 @@ export default function Navbar() {
       )}
     </nav>
   );
+
 }

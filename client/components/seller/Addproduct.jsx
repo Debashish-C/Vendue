@@ -4,8 +4,44 @@ import { useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 
 export default function AddProduct() {
+  const [image, setImage] = useState(null); // new
+  const [imagePreview, setImagePreview] = useState(null); // new
+  const [uploading, setUploading] = useState(false); // new
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImageToCloudinary = async () => {
+    if (!image) return null;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append(
+      "upload_preset",
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    );
+    formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData
+      );
+      setUploading(false);
+      return response.data.secure_url;
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      toast.error("Image upload failed");
+      setUploading(false);
+      return null;
+    }
+  };
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -50,14 +86,21 @@ export default function AddProduct() {
     }
 
     try {
-      await axios.post(`http://localhost:4000/product/`, {
+      // ✅ Corrected image upload logic
+      let uploadedImageUrl = null;
+      if (image) {
+        uploadedImageUrl = await uploadImageToCloudinary();
+      }
+
+      await axios.post(`${import.meta.env.VITE_API_URL}/product/`, {
         ...form,
         categoryId: parseInt(form.categoryId),
         sellerId: user.id,
         basePrice: parseFloat(form.basePrice),
+        image: uploadedImageUrl, // ✅ send correct image URL
       });
 
-      console.log("success added product");
+      console.log("Product added successfully");
       toast.success("Product added successfully!");
       setForm({
         name: "",
@@ -68,6 +111,8 @@ export default function AddProduct() {
         auctionEndTime: "",
         location: "",
       });
+      setImage(null);
+      setImagePreview(null);
     } catch (err) {
       console.error("Error adding product:", err);
       toast.error(err.response?.data?.message || "Error adding product");
@@ -256,6 +301,35 @@ export default function AddProduct() {
                     required
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-gray-700 md:pt-3"
+              >
+                Product Image
+              </label>
+              <div className="md:col-span-2">
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="mt-3 w-40 h-40 object-cover rounded-lg border"
+                  />
+                )}
+                {uploading && (
+                  <p className="text-sm text-blue-500 mt-1">Uploading...</p>
+                )}
               </div>
             </div>
 

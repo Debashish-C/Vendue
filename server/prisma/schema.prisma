@@ -52,7 +52,7 @@ model Product {
   sellerId         String
   category         Category?      @relation("CategoryProducts", fields: [categoryId], references: [id])
   categoryId       Int?
-  images           ProductImage[]
+  image            String
   bids             Bid[]
   unsold           Unsold?
   Winning          Winning[]
@@ -63,13 +63,6 @@ enum ProductStatus {
   ACTIVE
   SOLD
   UNSOLD
-}
-
-model ProductImage {
-  id        Int     @id @default(autoincrement())
-  url       String
-  product   Product @relation(fields: [productId], references: [id])
-  productId Int
 }
 
 model Bid {

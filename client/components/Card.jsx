@@ -15,7 +15,7 @@ export default function Card({
       <div className="relative h-48 w-full overflow-hidden">
         <img
           src={
-            "https://d2v5dzhdg4zhx3.cloudfront.net/web-assets/images/storypages/primary/ProductShowcasesampleimages/JPEG/Product+Showcase-1.jpg"
+            productImage
           }
           alt={productName}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"

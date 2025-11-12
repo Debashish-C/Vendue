@@ -156,7 +156,7 @@ export default function Products() {
                 className="transform hover:scale-[1.02] transition duration-200"
               >
                 <Card
-                  productImage={product.images}
+                  productImage={product.image}
                   productName={product.name}
                   productDescription={product.description}
                   productBasePrice={product.basePrice}

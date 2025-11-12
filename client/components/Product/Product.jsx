@@ -103,17 +103,19 @@ export default function Product({
     <div className=" mx-auto p-6 bg-white w-full border-gray-50 border  rounded-md ">
       <div className="flex justify-center items-center w-full flex-col gap-2">
         {/* Product Image */}
-        <div className="w-full  flex justify-center items-center">
-          <img
-            src={
-              productImage && productImage.trim() !== ""
-                ? productImage
-                : placeholderImage
-            }
-            alt={productName}
-            className="w-full h-64 sm:h-80 object-cover rounded-xl shadow-sm"
-          />
-        </div>
+        <div className="w-full flex justify-center items-center">
+  <div className="relative w-full max-w-md overflow-hidden rounded-2xl shadow-md bg-gray-50">
+    <img
+      src={
+        productImage && productImage.trim() !== ""
+          ? productImage
+          : placeholderImage
+      }
+      alt={productName}
+      className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 hover:scale-105"
+    />
+  </div>
+</div>
 
         {/* Product Details */}
         <div className="w-full  flex flex-col justify-between space-y-6">
