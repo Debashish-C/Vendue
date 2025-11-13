@@ -78,9 +78,9 @@ model Bid {
 model Winning {
   id              Int      @id @default(autoincrement())
   product         Product  @relation(fields: [productId], references: [id])
-  productId       Int
-  winner          User     @relation(fields: [winnerId], references: [id])
-  winnerId        String
+  productId       Int      @unique
+  winner          User?    @relation(fields: [winnerId], references: [id])
+  winnerId        String?
   productReceived Boolean  @default(false)
   paymentReceived Boolean  @default(false)
   buyerFeedback   String?

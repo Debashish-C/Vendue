@@ -6,6 +6,7 @@ import ProductRoute from "./routes/product.routes.js";
 import CatagoryRoute from "./routes/catagory.routes.js";
 import WishListRoute from "./routes/wishlist.routes.js";
 import BidsRoute from "./routes/bids.routes.js";
+import "./cron/auctionJob.js";
 
 const app = express();
 app.use(express.json());
@@ -49,5 +50,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
 
 export default app;

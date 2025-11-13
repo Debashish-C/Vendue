@@ -183,7 +183,7 @@ export default function Dashboard({
       </div>
 
       {/* Status Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-blue-50 rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-blue-600">
             {bidStats.totalBids}
@@ -208,7 +208,7 @@ export default function Dashboard({
           </div>
           <div className="text-xs text-orange-700">Auto-refresh</div>
         </div>
-      </div>
+      </div> */}
 
       {/* Error Message */}
       {error && (

@@ -29,7 +29,8 @@ export const getBidsForProduct = async (req, res) => {
   try {
     const bids = await prisma.bid.findMany({
       where: { productId: Number(id) },
-      orderBy: { amount: "desc" },
+      orderBy:[ { amount: "desc"} ,{ createdAt : "asc" }],
+      take : 3,
       include: {
         bidder: { select: { id: true, name: true, email: true } },
       },

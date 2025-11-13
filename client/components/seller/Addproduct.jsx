@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function AddProduct() {
-  const [image, setImage] = useState(null); // new
-  const [imagePreview, setImagePreview] = useState(null); // new
-  const [uploading, setUploading] = useState(false); // new
+  const now = new Date();
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,9 +49,9 @@ export default function AddProduct() {
     name: "",
     description: "",
     basePrice: "",
-    categoryId: 0,
-    auctionStartTime: "",
-    auctionEndTime: "",
+    categoryId: "",
+    auctionStartTime: null,
+    auctionEndTime: null,
     location: "",
   });
 
@@ -66,7 +69,6 @@ export default function AddProduct() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validation
     if (
       !form.name ||
       !form.basePrice ||
@@ -79,14 +81,13 @@ export default function AddProduct() {
       return;
     }
 
-    if (new Date(form.auctionStartTime) >= new Date(form.auctionEndTime)) {
+    if (form.auctionStartTime >= form.auctionEndTime) {
       toast.error("Auction end time must be after start time");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // ✅ Corrected image upload logic
       let uploadedImageUrl = null;
       if (image) {
         uploadedImageUrl = await uploadImageToCloudinary();
@@ -97,18 +98,17 @@ export default function AddProduct() {
         categoryId: parseInt(form.categoryId),
         sellerId: user.id,
         basePrice: parseFloat(form.basePrice),
-        image: uploadedImageUrl, // ✅ send correct image URL
+        image: uploadedImageUrl,
       });
 
-      console.log("Product added successfully");
       toast.success("Product added successfully!");
       setForm({
         name: "",
         description: "",
         basePrice: "",
         categoryId: "",
-        auctionStartTime: "",
-        auctionEndTime: "",
+        auctionStartTime: null,
+        auctionEndTime: null,
         location: "",
       });
       setImage(null);
@@ -129,247 +129,187 @@ export default function AddProduct() {
     }));
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-3 pt-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Add New Product
-            </h1>
-            <p className="text-gray-600">List your item for auction</p>
-          </div>
+  const minDate = new Date(); // prevent past date selection
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Product Name */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 md:pt-3"
-              >
+  return (
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white shadow-md rounded-lg p-6 sm:p-8">
+          <h1 className="text-2xl font-bold mb-2 text-gray-900 text-center">
+            Add New Product
+          </h1>
+          <p className="text-gray-600 text-center mb-6">
+            List your item for auction
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Product Name *
               </label>
-              <div className="md:col-span-2">
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={form.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter product name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleInputChange}
+                placeholder="Enter product name"
+                className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
             </div>
 
             {/* Category */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <label
-                htmlFor="categoryId"
-                className="block text-sm font-medium text-gray-700 md:pt-3"
-              >
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Category *
               </label>
-              <div className="md:col-span-2">
-                <select
-                  id="categoryId"
-                  name="categoryId"
-                  value={form.categoryId}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                name="categoryId"
+                value={form.categoryId}
+                onChange={handleInputChange}
+                className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
+                <option value="">Select a category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Description */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 md:pt-3"
-              >
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Description
               </label>
-              <div className="md:col-span-2">
-                <textarea
-                  id="description"
-                  name="description"
-                  value={form.description}
-                  onChange={handleInputChange}
-                  placeholder="Describe your product..."
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
-                />
-              </div>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleInputChange}
+                rows={4}
+                placeholder="Describe your product..."
+                className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+              />
             </div>
 
-            {/* Price and Location Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Base Price */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <label
-                  htmlFor="basePrice"
-                  className="block text-sm font-medium text-gray-700 md:pt-3"
-                >
+            {/* Base Price & Location */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Base Price ($) *
                 </label>
-                <div className="md:col-span-2">
-                  <input
-                    type="number"
-                    id="basePrice"
-                    name="basePrice"
-                    value={form.basePrice}
-                    onChange={handleInputChange}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    required
-                  />
-                </div>
+                <input
+                  type="number"
+                  name="basePrice"
+                  value={form.basePrice}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
               </div>
-
-              {/* Location */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <label
-                  htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 md:pt-3"
-                >
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Location
                 </label>
-                <div className="md:col-span-2">
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    value={form.location}
-                    onChange={handleInputChange}
-                    placeholder="Enter product location"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="location"
+                  value={form.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter product location"
+                  className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
             </div>
 
-            {/* Auction Times Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Auction Start Time */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <label
-                  htmlFor="auctionStartTime"
-                  className="block text-sm font-medium text-gray-700 md:pt-3"
-                >
-                  Start Time *
+            {/* Auction Times */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Auction Start Time *
                 </label>
-                <div className="md:col-span-2">
-                  <input
-                    type="datetime-local"
-                    id="auctionStartTime"
-                    name="auctionStartTime"
-                    value={form.auctionStartTime}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    required
-                  />
-                </div>
+                <DatePicker
+                  selected={form.auctionStartTime}
+                  onChange={(date) =>
+                    setForm((prev) => ({ ...prev, auctionStartTime: date }))
+                  }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  minDate={now} // cannot select past date
+                  minTime={now}  // cannot select past time for today
+                  maxTime={new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59)} // optional: end of day
+                  className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholderText="Select start time"
+                />
               </div>
-
-              {/* Auction End Time */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <label
-                  htmlFor="auctionEndTime"
-                  className="block text-sm font-medium text-gray-700 md:pt-3"
-                >
-                  End Time *
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Auction End Time *
                 </label>
-                <div className="md:col-span-2">
-                  <input
-                    type="datetime-local"
-                    id="auctionEndTime"
-                    name="auctionEndTime"
-                    value={form.auctionEndTime}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    required
-                  />
-                </div>
+                <DatePicker
+                  selected={form.auctionEndTime}
+                  onChange={(date) =>
+                    setForm((prev) => ({ ...prev, auctionEndTime: date }))
+                  }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  minDate={form.auctionStartTime || now} // end date cannot be before start date
+                  minTime={
+                    form.auctionStartTime &&
+                    new Date(
+                      form.auctionStartTime.getFullYear(),
+                      form.auctionStartTime.getMonth(),
+                      form.auctionStartTime.getDate(),
+                      form.auctionStartTime.getHours(),
+                      form.auctionStartTime.getMinutes()
+                    )
+                  } // end time cannot be before start time on the same day
+                  maxTime={new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59)}
+                  className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholderText="Select end time"
+                />
               </div>
             </div>
 
-            {/* Image Upload */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <label
-                htmlFor="image"
-                className="block text-sm font-medium text-gray-700 md:pt-3"
-              >
+            {/* Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Product Image
               </label>
-              <div className="md:col-span-2">
-                <input
-                  type="file"
-                  id="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="mt-1 w-full px-4 py-3 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mt-2 w-40 h-40 object-cover rounded-lg border"
                 />
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="mt-3 w-40 h-40 object-cover rounded-lg border"
-                  />
-                )}
-                {uploading && (
-                  <p className="text-sm text-blue-500 mt-1">Uploading...</p>
-                )}
-              </div>
+              )}
+              {uploading && <p className="text-blue-500 mt-1">Uploading...</p>}
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-6 flex justify-between flex-row-reverse items-center">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-fit bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Adding Product...
-                  </span>
-                ) : (
-                  "Add Product"
-                )}
-              </button>
-              <p className="text-sm text-gray-500">* Required fields</p>
-            </div>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Adding Product..." : "Add Product"}
+            </button>
           </form>
         </div>
       </div>

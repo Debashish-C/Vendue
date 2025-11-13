@@ -23,22 +23,42 @@ export default function Product({
   const placeholderImage =
     "https://via.placeholder.com/400x300?text=No+Image+Available";
 
+  // useEffect(() => {
+
+  //   const fetch = async () => {
+
+  //     try {
+  //       const bidHighest = await axios.get(
+  //         `${import.meta.env.VITE_API_URL}/bids/products/${product_id}`
+  //       );
+
+  //       console.log(bidHighest);
+  //       if(bidHighest.length > 0) {
+  //         setCurrentBid(bidHighest.data[0].bid_amount);
+  //       }
+  //     } catch {
+        
+  //     }
+  //   };
+  //   fetch();
+  // }, [placeBid]),
   useEffect(() => {
     if (!user?.id) return;
 
     const fetchData = async () => {
       try {
-        const wishlistRes = await axios.get(
-          `${import.meta.env.VITE_API_URL}/wishlist?user_id=${user.id}`
-        );
+        // const wishlistRes = await axios.get(
+        //   `${import.meta.env.VITE_API_URL}/wishlist?user_id=${user.id}`
+        // );
         const bidRes = await axios.get(
           `${import.meta.env.VITE_API_URL}/bids/products/${product_id}`
         );
 
-        setWishlist(wishlistRes.data.map((item) => item.product_id));
+        console.log(bidRes.data)
+        // setWishlist(wishlistRes.data.map((item) => item.product_id));
 
         if (Array.isArray(bidRes.data) && bidRes.data.length > 0) {
-          setCurrentBid(bidRes.data[0].bid_amount);
+          setCurrentBid(bidRes.data[0].amount);
           setHighestBidder(bidRes.data[0].username || "Anonymous");
         }
       } catch (error) {
@@ -48,7 +68,7 @@ export default function Product({
     };
 
     fetchData();
-  }, [user?.id, product_id]);
+  }, [user?.id, product_id, bidAmount]);
 
   const addToWishlist = async () => {
     if (!user?.id) return alert("Please log in");
@@ -69,11 +89,12 @@ export default function Product({
 
   const placeBid = async () => {
     if (!user?.id) return alert("Please log in");
+    
 
     const numericBid = Number(bidAmount);
     const effectiveCurrentBid = currentBid ?? 0;
 
-    if (!numericBid || numericBid <= effectiveCurrentBid) {
+    if (!numericBid || numericBid < effectiveCurrentBid) {
       return setErrorMessage("Your bid must be higher than the current bid.");
     }
 

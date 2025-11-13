@@ -15,12 +15,13 @@ import Cart from "../pages/Cart.jsx";
 import { ClerkProvider } from "@clerk/clerk-react";
 import NotFound from "../pages/NotFound.jsx";
 import SellerDashboard from "../components/Dashboard/SellerDashboard.jsx";
-import Chat from "../components/seller/chat.jsx";
+// import Chat from "../components/seller/chat.jsx";
 import LiveProducts from "../components/seller/LiveProducts.jsx";
 import AddProduct from "../components/seller/Addproduct.jsx";
 import Notifications from "../components/seller/Notification.jsx";
 import AllProducts from "../components/seller/AllProducts.jsx";
 import History from "../components/seller/History.jsx";
+import ChatPage from "../components/chat/ChatPage.jsx";
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
@@ -42,13 +43,14 @@ createRoot(document.getElementById("root")).render(
         <Route path="AuthLayout/register" element={<Register />} />
         <Route path="auction" element={<Auction />}></Route>
         <Route path="products" element={<Products />} />
+        <Route path="chat" element={<ChatPage />} />
         <Route path="/products/:id" element={<ProductPage />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/seller" element={<SellerDashboard />}>
           <Route index element={<AllProducts />} />
           <Route path="live" element={<LiveProducts />} />
           <Route path="history" element={<History />} />
-          <Route path="chat" element={<Chat />} />
+          {/* <Route path="chat" element={<Chat />} /> */}
           <Route path="add" element={<AddProduct />} />
           <Route path="notifications" element={<Notifications />} />
         </Route>

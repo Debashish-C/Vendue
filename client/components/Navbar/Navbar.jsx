@@ -9,7 +9,7 @@ import {
 } from "@clerk/clerk-react";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-react";
-import { Heart, ShoppingCart, Menu, X, Search } from "lucide-react";
+import { Heart, ShoppingCart, Menu, X, Search, MessageCircle } from "lucide-react";
 
 export default function Navbar() {
   const { signOut } = useClerk();
@@ -94,18 +94,18 @@ useEffect(() => {
         {/* Desktop Icons */}
         <div className="hidden md:flex items-center gap-5">
           {/* Wishlist & Cart */}
-          <Link
+          {/* <Link
             to="/wishlist"
             className="relative p-2 rounded-full hover:bg-blue-50 transition"
           >
             <Heart className="w-5 h-5 text-gray-700 hover:text-blue-600" />
-          </Link>
+          </Link> */}
 
           <Link
-            to="/cart"
+            to="/chat"
             className="relative p-2 rounded-full hover:bg-blue-50 transition"
           >
-            <ShoppingCart className="w-5 h-5 text-gray-700 hover:text-blue-600" />
+            <MessageCircle className="w-5 h-5 text-gray-700 hover:text-blue-600" />
           </Link>
 
           {/* Role Switch Button (only logged in) */}
@@ -161,21 +161,22 @@ useEffect(() => {
           </div>
 
           {/* Wishlist & Cart */}
+
           <div className="flex gap-4 items-center mb-4">
             <Link
-              to="/wishlist"
+              to="/chat"
               onClick={closeMenu}
               className="p-2 rounded-full hover:bg-blue-50 transition"
             >
-              <Heart className="w-5 h-5 text-gray-700" />
+              <MessageCircle className="w-5 h-5 text-gray-700" />
             </Link>
-            <Link
+            {/* <Link
               to="/cart"
               onClick={closeMenu}
               className="p-2 rounded-full hover:bg-blue-50 transition"
             >
               <ShoppingCart className="w-5 h-5 text-gray-700" />
-            </Link>
+            </Link> */}
           </div>
 
           {/* Role Switch (only logged in) */}

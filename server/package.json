@@ -8,8 +8,8 @@
     "vercel-build": "echo hello"
   },
   "prisma": {
-  "seed": "node prisma/seed.js"
-},
+    "seed": "node prisma/seed.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "node-cron": "^4.2.1",
     "pg": "^8.14.1",
     "prisma": "^6.17.0"
   },
